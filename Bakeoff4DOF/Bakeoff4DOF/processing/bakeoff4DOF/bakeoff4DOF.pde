@@ -21,6 +21,11 @@ float logoY = 500;
 float logoZ = 50f;
 float logoRotation = 0;
 
+boolean overBox = false;
+boolean locked = false;
+float xOffset = 0.0;
+float yOffset = 0.0;
+
 private class Destination
 {
   float x = 0;
@@ -97,6 +102,7 @@ void draw() {
   rotate(radians(logoRotation)); //rotate using the logo square as the origin
   noStroke();
   fill(60, 60, 192, 192);
+  overBox = isOverBox();
   rect(0, 0, logoZ, logoZ);
   popMatrix();
 
@@ -154,13 +160,26 @@ void mousePressed()
     startTime = millis();
     println("time started!");
   }
+  locked = overBox;
+  xOffset = mouseX-logoX;
+  yOffset = mouseY-logoY;
+}
+
+void mouseDragged() {
+  if(locked) {
+    logoX = mouseX-xOffset;
+    logoY = mouseY-yOffset;
+  }
 }
 
 void mouseReleased()
 {
-  //check to see if user clicked middle of screen within 3 inches, which this code uses as a submit button
-  if (dist(width/2, height/2, mouseX, mouseY)<inchToPix(3f))
-  {
+  locked = false;
+}
+
+void keyPressed()
+{
+  if (key == ' ') {
     if (userDone==false && !checkForSuccess())
       errorCount++;
 
@@ -171,6 +190,16 @@ void mouseReleased()
       userDone = true;
       finishTime = millis();
     }
+  }
+}
+
+boolean isOverBox()
+{
+  if (mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
+      mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
+    return true;
+  } else {
+    return false;
   }
 }
 
