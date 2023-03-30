@@ -171,7 +171,19 @@ void mouseDragged() {
     logoX = mouseX-xOffset;
     logoY = mouseY-yOffset;
   }
+  logoRotation = PI*3/4 + atan2((0 - mouseY), (0 - mouseX));
 }
+
+/**
+  pushMatrix();
+  translate(logoX, logoY); //translate draw center to the center oft he logo square
+  rotate(radians(logoRotation)); //rotate using the logo square as the origin
+  noStroke();
+  fill(60, 60, 192, 192);
+  overBox = isOverBox();
+  rect(0, 0, logoZ, logoZ);
+  popMatrix();
+  **/
 
 void mouseReleased()
 {
