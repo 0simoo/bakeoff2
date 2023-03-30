@@ -237,8 +237,10 @@ float inchToPix(float inch)
   return inch*screenPPI;
 }
 
-void mouseWheel(MouseEvent event) {
-  float e = event.getCount();
-  logoZ += e;
-  println(logoZ);
-}
+
+//this is illegal D:
+//void mouseWheel(MouseEvent event) {
+//  float e = event.getCount();
+//  logoZ += e;
+//  println(logoZ);
+//}
