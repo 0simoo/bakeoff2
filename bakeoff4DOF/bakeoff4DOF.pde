@@ -99,7 +99,7 @@ void draw() {
   //===========DRAW LOGO SQUARE=================
   pushMatrix();
   translate(logoX, logoY); //translate draw center to the center oft he logo square
-  rotate(radians(logoRotation)); //rotate using the logo square as the origin
+  rotate(logoRotation); //rotate using the logo square as the origin
   noStroke();
   fill(60, 60, 192, 192);
   overBox = isOverBox();
@@ -171,7 +171,8 @@ void mouseDragged() {
     logoX = mouseX-xOffset;
     logoY = mouseY-yOffset;
   }
-  logoRotation = PI*3/4 + atan2((0 - mouseY), (0 - mouseX));
+  else
+    logoRotation = PI*3/4 + atan2((logoY - mouseY), (logoX - mouseX));
 }
 
 /**
@@ -190,21 +191,22 @@ void mouseReleased()
   locked = false;
 }
 
-void keyPressed()
-{
-  if (key == ' ') {
-    if (userDone==false && !checkForSuccess())
-      errorCount++;
+//Keyboard input is illegal
+//void keyPressed()
+//{
+//  if (key == ' ') {
+//    if (userDone==false && !checkForSuccess())
+//      errorCount++;
 
-    trialIndex++; //and move on to next trial
+//    trialIndex++; //and move on to next trial
 
-    if (trialIndex==trialCount && userDone==false)
-    {
-      userDone = true;
-      finishTime = millis();
-    }
-  }
-}
+//    if (trialIndex==trialCount && userDone==false)
+//    {
+//      userDone = true;
+//      finishTime = millis();
+//    }
+//  }
+//}
 
 boolean isOverBox()
 {
