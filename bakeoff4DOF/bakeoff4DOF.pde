@@ -118,12 +118,12 @@ void scaffoldControlLogic()
   //upper left corner, rotate counterclockwise
     text("CCW", inchToPix(12.25f), inchToPix(10.6f));
   if (mousePressed && dist(inchToPix(12.25f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.46f))
-    logoRotation--;
+    logoRotation -= 0.1;
 
   //upper right corner, rotate clockwise
   text("CW", width-inchToPix(.3f), inchToPix(10.6f));
   if (mousePressed && dist(width-inchToPix(.4f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f))
-    logoRotation++;
+    logoRotation += 0.1;
 
   //lower left corner, decrease Z
   text("-", inchToPix(12.94f), inchToPix(10.9f));
@@ -152,6 +152,9 @@ void scaffoldControlLogic()
   text("down", inchToPix(1.1f), inchToPix(11f));
   if (mousePressed && dist(inchToPix(1.1f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
     logoY+=inchToPix(.02f);
+    
+  text("Submit", inchToPix(7f), inchToPix(11f));
+   
 }
 
 void mousePressed()
@@ -189,6 +192,21 @@ void mouseDragged() {
 void mouseReleased()
 {
   locked = false;
+  
+  if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
+  {
+    if (userDone==false && !checkForSuccess())
+      errorCount++;
+
+    trialIndex++; //and move on to next trial
+
+    if (trialIndex==trialCount && userDone==false)
+    {
+      userDone = true;
+      finishTime = millis();
+    }
+  }
+  
 }
 
 //Keyboard input is illegal
