@@ -22,7 +22,9 @@ float logoZ = 50f;
 float logoRotation = 0;
 
 boolean overBox = false;
+boolean overCorner = false;
 boolean locked = false;
+boolean lockedCorner = false;
 float xOffset = 0.0;
 float yOffset = 0.0;
 
@@ -109,6 +111,7 @@ void draw() {
       stroke(204, 102, 0);
   }
   rect(0, 0, logoZ, logoZ);
+  overCorner = isOverCorner();
   popMatrix();
 
   //===========DRAW EXAMPLE CONTROLS=================
@@ -207,6 +210,8 @@ void mousePressed()
   locked = overBox;
   xOffset = mouseX-logoX;
   yOffset = mouseY-logoY;
+  lockedCorner = overCorner;
+  
   if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
   {
     if (userDone==false && !checkForSuccess())
@@ -227,8 +232,24 @@ void mouseDragged() {
   //if(locked){
   //  pickedUp = !pickedUp;
   //}
-  logoRotation = degrees(atan2((logoY - mouseY), (logoX - mouseX)));
-  println("radians:" + logoRotation + " degrees: " + degrees(logoRotation));
+  if(!locked) {
+    logoRotation = degrees(atan2((logoY - mouseY), (logoX - mouseX)));
+    println("radians:" + logoRotation + " degrees: " + degrees(logoRotation));
+  }
+  if(locked) {
+    logoX = mouseX-xOffset;
+    logoY = mouseY-yOffset;
+  }
+  if(lockedCorner) {
+    float currentLogoZ = logoZ;
+    cursor(HAND);
+    if (mouseY > logoY+currentLogoZ) {
+      logoZ = constrain(logoZ+inchToPix(.02f), .01, inchToPix(4f));
+    }
+    else {
+      logoZ = constrain(logoZ-inchToPix(.02f), .01, inchToPix(4f));
+    }
+  }
 }
 
 /**
@@ -245,7 +266,7 @@ void mouseDragged() {
 void mouseReleased()
 {
   locked = false;
-
+  lockedCorner = false;
 }
 
 //Keyboard input is illegal
@@ -267,21 +288,46 @@ void mouseReleased()
 
 boolean isOverBox()
 {
-  if (mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
-    mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
+  if (!isOverCorner() &&
+          mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
+          mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
     return true;
   } else {
     return false;
   }
 }
 
+boolean isOverCorner()
+{
+  float offset = (0.25)*logoZ;  
+  boolean bottomRight = mouseX >= (logoX+(logoZ/2)-offset) && mouseX <= (logoX+(logoZ/2)+offset) &&
+          mouseY >= (logoY+(logoZ/2)-offset) && mouseY <= (logoY+(logoZ/2)+offset);
+  boolean bottomLeft = mouseX >= (logoX-(logoZ/2)-offset) && mouseX <= (logoX-(logoZ/2)+offset) &&
+          mouseY >= (logoY+(logoZ/2)-offset) && mouseY <= (logoY+(logoZ/2)+offset);
+  boolean topRight = mouseX >= (logoX+(logoZ/2)-offset) && mouseX <= (logoX+(logoZ/2)+offset) &&
+          mouseY >= (logoY-(logoZ/2)-offset) && mouseY <= (logoY-(logoZ/2)+offset);
+  boolean topLeft = mouseX >= (logoX-(logoZ/2)-offset) && mouseX <= (logoX-(logoZ/2)+offset) &&
+          mouseY >= (logoY-(logoZ/2)-offset) && mouseY <= (logoY-(logoZ/2)+offset);
+ 
+  if (bottomRight || bottomLeft || topRight || topLeft) {
+    cursor(HAND);
+    print("over corner\n");
+    return true;
+  } else {
+    cursor(ARROW);
+    print("not over corner\n");
+    return false;
+  }
+}
+
+
 //probably shouldn't modify this, but email me if you want to for some good reason.
 public boolean checkForSuccess()
 {
-  Destination d = destinations.get(trialIndex);	
+  Destination d = destinations.get(trialIndex);  
   boolean closeDist = dist(d.x, d.y, logoX, logoY)<inchToPix(.05f); //has to be within +-0.05"
   boolean closeRotation = calculateDifferenceBetweenAngles(d.rotation, logoRotation)<=5;
-  boolean closeZ = abs(d.z - logoZ)<inchToPix(.1f); //has to be within +-0.1"	
+  boolean closeZ = abs(d.z - logoZ)<inchToPix(.1f); //has to be within +-0.1"  
 
   println("Close Enough Distance: " + closeDist + " (logo X/Y = " + d.x + "/" + d.y + ", destination X/Y = " + logoX + "/" + logoY +")");
   println("Close Enough Rotation: " + closeRotation + " (rot dist="+calculateDifferenceBetweenAngles(d.rotation, logoRotation)+")");
