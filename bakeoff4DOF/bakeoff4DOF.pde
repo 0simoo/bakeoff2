@@ -26,6 +26,8 @@ boolean locked = false;
 float xOffset = 0.0;
 float yOffset = 0.0;
 
+boolean pickedUp = false;
+
 private class Destination
 {
   float x = 0;
@@ -109,10 +111,19 @@ void draw() {
   //===========DRAW EXAMPLE CONTROLS=================
   fill(255);
   scaffoldControlLogic(); //you are going to want to replace this!
+  moveLogo();
   text("Trial " + (trialIndex+1) + " of " +trialCount, width/2, inchToPix(.8f));
 }
 
-//my example design for control, which is terrible
+void moveLogo(){
+  //move and rotate
+  if(pickedUp) {
+    logoX = mouseX-xOffset;
+    logoY = mouseY-yOffset;
+  }
+}
+
+//our new design for control, which is not as terrible
 void scaffoldControlLogic()
 {
   //upper left corner, rotate counterclockwise
@@ -170,12 +181,7 @@ void mousePressed()
 }
 
 void mouseDragged() {
-  if(locked) {
-    logoX = mouseX-xOffset;
-    logoY = mouseY-yOffset;
-  }
-  else
-    logoRotation = PI*3/4 + atan2((logoY - mouseY), (logoX - mouseX));
+  logoRotation = PI*3/4 + atan2((logoY - mouseY), (logoX - mouseX));
 }
 
 /**
@@ -193,6 +199,10 @@ void mouseReleased()
 {
   locked = false;
   
+  if (overBox){
+    pickedUp = !pickedUp;
+    print(pickedUp);
+  }
   if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
   {
     if (userDone==false && !checkForSuccess())
