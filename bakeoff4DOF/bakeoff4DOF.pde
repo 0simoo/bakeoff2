@@ -178,6 +178,19 @@ void mousePressed()
   locked = overBox;
   xOffset = mouseX-logoX;
   yOffset = mouseY-logoY;
+    if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
+  {
+    if (userDone==false && !checkForSuccess())
+      errorCount++;
+
+    trialIndex++; //and move on to next trial
+
+    if (trialIndex==trialCount && userDone==false)
+    {
+      userDone = true;
+      finishTime = millis();
+    }
+  }
 }
 
 void mouseDragged() {
@@ -202,19 +215,6 @@ void mouseReleased()
   if (overBox){
     pickedUp = !pickedUp;
     print(pickedUp);
-  }
-  if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
-  {
-    if (userDone==false && !checkForSuccess())
-      errorCount++;
-
-    trialIndex++; //and move on to next trial
-
-    if (trialIndex==trialCount && userDone==false)
-    {
-      userDone = true;
-      finishTime = millis();
-    }
   }
   
 }
