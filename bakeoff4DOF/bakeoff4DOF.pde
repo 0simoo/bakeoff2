@@ -105,6 +105,9 @@ void draw() {
   noStroke();
   fill(60, 60, 192, 192);
   overBox = isOverBox();
+  if(pickedUp){
+    stroke(204, 102, 0);
+  }
   rect(0, 0, logoZ, logoZ);
   popMatrix();
 
