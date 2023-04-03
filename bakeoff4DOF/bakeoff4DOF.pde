@@ -13,7 +13,7 @@ int finishTime = 0; //records the time of the final click
 boolean userDone = false; //is the user done
 
 final int screenPPI = 72; //what is the DPI of the screen you are using
-//you can test this by drawing a 72x72 pixel rectangle in code, and then confirming with a ruler it is 1x1 inch. 
+//you can test this by drawing a 72x72 pixel rectangle in code, and then confirming with a ruler it is 1x1 inch.
 
 //These variables are for my example design. Your input code should modify/replace these!
 float logoX = 500;
@@ -39,23 +39,23 @@ private class Destination
 ArrayList<Destination> destinations = new ArrayList<Destination>();
 
 void setup() {
-  size(1000, 800);  
+  size(1000, 800);
   rectMode(CENTER);
   textFont(createFont("Arial", inchToPix(.3f))); //sets the font to Arial that is 0.3" tall
   textAlign(CENTER);
   rectMode(CENTER); //draw rectangles not from upper left, but from the center outwards
-  
-  //don't change this! 
+
+  //don't change this!
   border = inchToPix(2f); //padding of 1.0 inches
 
-  for (int i=0; i<trialCount; i++) //don't change this! 
+  for (int i=0; i<trialCount; i++) //don't change this!
   {
     Destination d = new Destination();
     d.x = random(border, width-border); //set a random x with some padding
     d.y = random(border, height-border); //set a random y with some padding
     d.rotation = random(0, 360); //random rotation between 0 and 360
     int j = (int)random(20);
-    d.z = ((j%12)+1)*inchToPix(.25f); //increasing size from .25 up to 3.0" 
+    d.z = ((j%12)+1)*inchToPix(.25f); //increasing size from .25 up to 3.0"
     destinations.add(d);
     println("created target with " + d.x + "," + d.y + "," + d.rotation + "," + d.z);
   }
@@ -105,8 +105,8 @@ void draw() {
   noStroke();
   fill(60, 60, 192, 192);
   overBox = isOverBox();
-  if(pickedUp){
-    stroke(204, 102, 0);
+  if (pickedUp) {
+      stroke(204, 102, 0);
   }
   rect(0, 0, logoZ, logoZ);
   popMatrix();
@@ -116,11 +116,32 @@ void draw() {
   scaffoldControlLogic(); //you are going to want to replace this!
   moveLogo();
   text("Trial " + (trialIndex+1) + " of " +trialCount, width/2, inchToPix(.8f));
+  
+  //accuracy feedback
+  Destination d = destinations.get(trialIndex);  
+  
+  if(dist(d.x, d.y, logoX, logoY)<inchToPix(.05f))
+    fill(124,252,0);
+  else
+    fill(255,160,122);
+  text("D", width/2 - inchToPix(.3f), inchToPix(1.2f));
+  
+  if(calculateDifferenceBetweenAngles(d.rotation, logoRotation)<=5)
+    fill(124,252,0);
+  else
+    fill(255,160,122);
+  text("R", width/2, inchToPix(1.2f));
+  
+  if(abs(d.z - logoZ)<inchToPix(.1f))
+    fill(124,252,0);
+  else
+    fill(255,160,122);
+  text("Z", width/2 + inchToPix(.3f), inchToPix(1.2f));
 }
 
-void moveLogo(){
+void moveLogo() {
   //move
-  if(pickedUp) {
+  if (pickedUp) {
     logoX = mouseX-xOffset;
     logoY = mouseY-yOffset;
   }
@@ -130,7 +151,7 @@ void moveLogo(){
 void scaffoldControlLogic()
 {
   //upper left corner, rotate counterclockwise
-    text("CCW", inchToPix(12.25f), inchToPix(10.6f));
+  text("CCW", inchToPix(12.25f), inchToPix(10.6f));
   if (mousePressed && dist(inchToPix(12.25f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.46f))
     logoRotation -= 0.1;
 
@@ -145,9 +166,9 @@ void scaffoldControlLogic()
     logoZ = constrain(logoZ-inchToPix(.02f), .01, inchToPix(4f)); //leave min and max alone!
 
   //lower right corner, increase Z
-   text("+", inchToPix(12.94f), inchToPix(10.3f));
+  text("+", inchToPix(12.94f), inchToPix(10.3f));
   if (mousePressed && dist(inchToPix(12.9f), inchToPix(10.3f), mouseX, mouseY)<inchToPix(.42f))
-    logoZ = constrain(logoZ+inchToPix(.02f), .01, inchToPix(4f)); //leave min and max alone! 
+    logoZ = constrain(logoZ+inchToPix(.02f), .01, inchToPix(4f)); //leave min and max alone!
 
 
   //left middle, move left
@@ -158,21 +179,26 @@ void scaffoldControlLogic()
   text("right", inchToPix(1.8f), inchToPix(10.6f));
   if (mousePressed && dist(inchToPix(1.8f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f))
     logoX+=inchToPix(.02f);
-  
+
   text("up", inchToPix(1.1f), inchToPix(10.2f));
   if (mousePressed && dist(inchToPix(1.1f), inchToPix(10.2f), mouseX, mouseY)<inchToPix(.5f))
     logoY-=inchToPix(.02f);
-    
+
   text("down", inchToPix(1.1f), inchToPix(11f));
   if (mousePressed && dist(inchToPix(1.1f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
     logoY+=inchToPix(.02f);
     
+  if(checkForSuccess()){
+    fill(124,252,0);
+  }
   text("Submit", inchToPix(7f), inchToPix(11f));
-   
 }
 
 void mousePressed()
 {
+  if (overBox) {
+    pickedUp = !pickedUp;
+  }
   if (startTime == 0) //start time on the instant of the first user click
   {
     startTime = millis();
@@ -181,7 +207,7 @@ void mousePressed()
   locked = overBox;
   xOffset = mouseX-logoX;
   yOffset = mouseY-logoY;
-    if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
+  if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
   {
     if (userDone==false && !checkForSuccess())
       errorCount++;
@@ -197,29 +223,29 @@ void mousePressed()
 }
 
 void mouseDragged() {
+  //draggable square but its a bit janky
+  //if(locked){
+  //  pickedUp = !pickedUp;
+  //}
   logoRotation = degrees(atan2((logoY - mouseY), (logoX - mouseX)));
   println("radians:" + logoRotation + " degrees: " + degrees(logoRotation));
 }
 
 /**
-  pushMatrix();
-  translate(logoX, logoY); //translate draw center to the center oft he logo square
-  rotate(radians(logoRotation)); //rotate using the logo square as the origin
-  noStroke();
-  fill(60, 60, 192, 192);
-  overBox = isOverBox();
-  rect(0, 0, logoZ, logoZ);
-  popMatrix();
-  **/
+ pushMatrix();
+ translate(logoX, logoY); //translate draw center to the center oft he logo square
+ rotate(radians(logoRotation)); //rotate using the logo square as the origin
+ noStroke();
+ fill(60, 60, 192, 192);
+ overBox = isOverBox();
+ rect(0, 0, logoZ, logoZ);
+ popMatrix();
+ **/
 
 void mouseReleased()
 {
   locked = false;
-  
-  if (overBox){
-    pickedUp = !pickedUp;
-  }
-  
+
 }
 
 //Keyboard input is illegal
@@ -242,7 +268,7 @@ void mouseReleased()
 boolean isOverBox()
 {
   if (mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
-      mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
+    mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
     return true;
   } else {
     return false;
