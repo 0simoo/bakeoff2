@@ -101,7 +101,7 @@ void draw() {
   //===========DRAW LOGO SQUARE=================
   pushMatrix();
   translate(logoX, logoY); //translate draw center to the center oft he logo square
-  rotate(logoRotation); //rotate using the logo square as the origin
+  rotate(radians(logoRotation)); //rotate using the logo square as the origin
   noStroke();
   fill(60, 60, 192, 192);
   overBox = isOverBox();
@@ -116,7 +116,7 @@ void draw() {
 }
 
 void moveLogo(){
-  //move and rotate
+  //move
   if(pickedUp) {
     logoX = mouseX-xOffset;
     logoY = mouseY-yOffset;
@@ -194,7 +194,8 @@ void mousePressed()
 }
 
 void mouseDragged() {
-  logoRotation = PI*3/4 + atan2((logoY - mouseY), (logoX - mouseX));
+  logoRotation = degrees(atan2((logoY - mouseY), (logoX - mouseX)));
+  println("radians:" + logoRotation + " degrees: " + degrees(logoRotation));
 }
 
 /**
@@ -214,7 +215,6 @@ void mouseReleased()
   
   if (overBox){
     pickedUp = !pickedUp;
-    print(pickedUp);
   }
   
 }
