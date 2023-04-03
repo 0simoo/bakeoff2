@@ -22,9 +22,7 @@ float logoZ = 50f;
 float logoRotation = 0;
 
 boolean overBox = false;
-boolean overCorner = false;
 boolean locked = false;
-boolean lockedCorner = false;
 float xOffset = 0.0;
 float yOffset = 0.0;
 
@@ -72,6 +70,8 @@ void draw() {
   background(40); //background is dark grey
   fill(200);
   noStroke();
+  if(onButton()) cursor(HAND);
+  else cursor(ARROW);
 
   //shouldn't really modify this printout code unless there is a really good reason to
   if (userDone)
@@ -111,7 +111,6 @@ void draw() {
       stroke(204, 102, 0);
   }
   rect(0, 0, logoZ, logoZ);
-  overCorner = isOverCorner();
   popMatrix();
 
   //===========DRAW EXAMPLE CONTROLS=================
@@ -127,19 +126,19 @@ void draw() {
     fill(124,252,0);
   else
     fill(255,160,122);
-  text("D", width/2 - inchToPix(.3f), inchToPix(1.2f));
+  text("center", width/2 - inchToPix(1.2f), inchToPix(1.2f));
   
   if(calculateDifferenceBetweenAngles(d.rotation, logoRotation)<=5)
     fill(124,252,0);
   else
     fill(255,160,122);
-  text("R", width/2, inchToPix(1.2f));
+  text("rotation", width/2, inchToPix(1.2f));
   
   if(abs(d.z - logoZ)<inchToPix(.1f))
     fill(124,252,0);
   else
     fill(255,160,122);
-  text("Z", width/2 + inchToPix(.3f), inchToPix(1.2f));
+  text("radius", width/2 + inchToPix(1.2f), inchToPix(1.2f));
 }
 
 void moveLogo() {
@@ -155,42 +154,27 @@ void scaffoldControlLogic()
 {
   //upper left corner, rotate counterclockwise
   text("CCW", inchToPix(12.25f), inchToPix(10.6f));
-  if (mousePressed && dist(inchToPix(12.25f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.46f))
+  if (mousePressed && dist(inchToPix(12.25f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.46f)) {
     logoRotation -= 0.1;
+  }
 
   //upper right corner, rotate clockwise
   text("CW", width-inchToPix(.3f), inchToPix(10.6f));
-  if (mousePressed && dist(width-inchToPix(.4f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f))
+  if (mousePressed && dist(width-inchToPix(.4f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f)){
     logoRotation += 0.1;
+  }
 
   //lower left corner, decrease Z
   text("-", inchToPix(12.94f), inchToPix(10.9f));
-  if (mousePressed && dist(inchToPix(12.94f), inchToPix(10.9f), mouseX, mouseY)<inchToPix(.5f))
-    logoZ = constrain(logoZ-inchToPix(.02f), .01, inchToPix(4f)); //leave min and max alone!
+  if (mousePressed && dist(inchToPix(12.94f), inchToPix(10.9f), mouseX, mouseY)<inchToPix(.5f)) {
+    logoZ = constrain(logoZ-inchToPix(.02f), .05, inchToPix(4f)); //leave min and max alone!
+  }
 
   //lower right corner, increase Z
   text("+", inchToPix(12.94f), inchToPix(10.3f));
-  if (mousePressed && dist(inchToPix(12.9f), inchToPix(10.3f), mouseX, mouseY)<inchToPix(.42f))
-    logoZ = constrain(logoZ+inchToPix(.02f), .01, inchToPix(4f)); //leave min and max alone!
-
-
-  //left middle, move left
-  text("left", inchToPix(.4f), inchToPix(10.6f));
-  if (mousePressed && dist(inchToPix(.4f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f))
-    logoX-=inchToPix(.02f);
-
-  text("right", inchToPix(1.8f), inchToPix(10.6f));
-  if (mousePressed && dist(inchToPix(1.8f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f))
-    logoX+=inchToPix(.02f);
-
-  text("up", inchToPix(1.1f), inchToPix(10.2f));
-  if (mousePressed && dist(inchToPix(1.1f), inchToPix(10.2f), mouseX, mouseY)<inchToPix(.5f))
-    logoY-=inchToPix(.02f);
-
-  text("down", inchToPix(1.1f), inchToPix(11f));
-  if (mousePressed && dist(inchToPix(1.1f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
-    logoY+=inchToPix(.02f);
-    
+  if (mousePressed && dist(inchToPix(12.9f), inchToPix(10.3f), mouseX, mouseY)<inchToPix(.42f)) {
+    logoZ = constrain(logoZ+inchToPix(.02f), .05, inchToPix(4f)); //leave min and max alone!
+  }
   if(checkForSuccess()){
     fill(124,252,0);
   }
@@ -210,7 +194,6 @@ void mousePressed()
   locked = overBox;
   xOffset = mouseX-logoX;
   yOffset = mouseY-logoY;
-  lockedCorner = overCorner;
   
   if (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f))
   {
@@ -228,11 +211,7 @@ void mousePressed()
 }
 
 void mouseDragged() {
-  //draggable square but its a bit janky
-  //if(locked){
-  //  pickedUp = !pickedUp;
-  //}
-  if(!locked) {
+  if(!locked && !onButton()) {
     logoRotation = degrees(atan2((logoY - mouseY), (logoX - mouseX)));
     println("radians:" + logoRotation + " degrees: " + degrees(logoRotation));
   }
@@ -240,86 +219,31 @@ void mouseDragged() {
     logoX = mouseX-xOffset;
     logoY = mouseY-yOffset;
   }
-  if(lockedCorner) {
-    float currentLogoZ = logoZ;
-    cursor(HAND);
-    if (mouseY > logoY+currentLogoZ) {
-      logoZ = constrain(logoZ+inchToPix(.02f), .01, inchToPix(4f));
-    }
-    else {
-      logoZ = constrain(logoZ-inchToPix(.02f), .01, inchToPix(4f));
-    }
-  }
 }
-
-/**
- pushMatrix();
- translate(logoX, logoY); //translate draw center to the center oft he logo square
- rotate(radians(logoRotation)); //rotate using the logo square as the origin
- noStroke();
- fill(60, 60, 192, 192);
- overBox = isOverBox();
- rect(0, 0, logoZ, logoZ);
- popMatrix();
- **/
 
 void mouseReleased()
 {
   locked = false;
-  lockedCorner = false;
 }
-
-//Keyboard input is illegal
-//void keyPressed()
-//{
-//  if (key == ' ') {
-//    if (userDone==false && !checkForSuccess())
-//      errorCount++;
-
-//    trialIndex++; //and move on to next trial
-
-//    if (trialIndex==trialCount && userDone==false)
-//    {
-//      userDone = true;
-//      finishTime = millis();
-//    }
-//  }
-//}
 
 boolean isOverBox()
 {
-  if (!isOverCorner() &&
-          mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
-          mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
+  if (mouseX >= logoX-(logoZ/2) && mouseX <= logoX+(logoZ/2) &&
+      mouseY >= logoY-(logoZ/2) && mouseY <= logoY+(logoZ/2)) {
     return true;
   } else {
     return false;
   }
 }
 
-boolean isOverCorner()
+boolean onButton()
 {
-  float offset = (0.25)*logoZ;  
-  boolean bottomRight = mouseX >= (logoX+(logoZ/2)-offset) && mouseX <= (logoX+(logoZ/2)+offset) &&
-          mouseY >= (logoY+(logoZ/2)-offset) && mouseY <= (logoY+(logoZ/2)+offset);
-  boolean bottomLeft = mouseX >= (logoX-(logoZ/2)-offset) && mouseX <= (logoX-(logoZ/2)+offset) &&
-          mouseY >= (logoY+(logoZ/2)-offset) && mouseY <= (logoY+(logoZ/2)+offset);
-  boolean topRight = mouseX >= (logoX+(logoZ/2)-offset) && mouseX <= (logoX+(logoZ/2)+offset) &&
-          mouseY >= (logoY-(logoZ/2)-offset) && mouseY <= (logoY-(logoZ/2)+offset);
-  boolean topLeft = mouseX >= (logoX-(logoZ/2)-offset) && mouseX <= (logoX-(logoZ/2)+offset) &&
-          mouseY >= (logoY-(logoZ/2)-offset) && mouseY <= (logoY-(logoZ/2)+offset);
- 
-  if (bottomRight || bottomLeft || topRight || topLeft) {
-    cursor(HAND);
-    print("over corner\n");
-    return true;
-  } else {
-    cursor(ARROW);
-    print("not over corner\n");
-    return false;
-  }
+  return ((dist(inchToPix(12.25f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.46f)) ||
+          (dist(width-inchToPix(.4f), inchToPix(10.6f), mouseX, mouseY)<inchToPix(.5f)) ||
+          (dist(inchToPix(12.94f), inchToPix(10.9f), mouseX, mouseY)<inchToPix(.5f)) ||
+          (dist(inchToPix(12.9f), inchToPix(10.3f), mouseX, mouseY)<inchToPix(.42f)) ||
+          (dist(inchToPix(7f), inchToPix(11f), mouseX, mouseY)<inchToPix(.5f)));
 }
-
 
 //probably shouldn't modify this, but email me if you want to for some good reason.
 public boolean checkForSuccess()
@@ -353,11 +277,3 @@ float inchToPix(float inch)
 {
   return inch*screenPPI;
 }
-
-
-//this is illegal D:
-//void mouseWheel(MouseEvent event) {
-//  float e = event.getCount();
-//  logoZ += e;
-//  println(logoZ);
-//}
